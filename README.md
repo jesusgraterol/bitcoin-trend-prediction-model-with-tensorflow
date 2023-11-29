@@ -24,11 +24,13 @@ from numpy.random import seed as npseed
 from pandas import options, DataFrame
 from tensorflow import print as tfprint, random as tf_random
 from tensorflow.keras import Sequential
-from tensorflow.keras.layers import Input, Reshape, Dense, Flatten, Conv1D, MaxPooling1D, LSTM, Bidirectional, GRU
+from tensorflow.keras.layers import Input, Reshape, Dense, Flatten, Conv1D, MaxPooling1D, LSTM, \
+Bidirectional, GRU
 from tensorflow.keras.optimizers import Adam, RMSprop, SGD
 from tensorflow.keras.optimizers.schedules import InverseTimeDecay
 from tensorflow.keras.losses import MeanAbsoluteError, MeanSquaredError
-from tensorflow.keras.metrics import MeanAbsoluteError as MeanAbsoluteErrorMetric, MeanSquaredError as MeanSquaredErrorMetric
+from tensorflow.keras.metrics import MeanAbsoluteError as MeanAbsoluteErrorMetric, \
+MeanSquaredError as MeanSquaredErrorMetric
 from tensorflow.keras.callbacks import EarlyStopping, History
 import utilities as utils
 import matplotlib.pyplot as plt
@@ -385,7 +387,11 @@ model.add(Input(shape=(CONFIG["input_width"],)))
 # Build the layers
 for i, layer in enumerate(CONFIG["hidden_layers"]):
     # Reshape the input if applies
-    if i == 0 and (layer["type"] == "Conv1D" or layer["type"] == "LSTM" or layer["type"] == "BDLSTM" or layer["type"] == "GRU"):
+    if i == 0 and (
+      layer["type"] == "Conv1D" or 
+      layer["type"] == "LSTM" or 
+      layer["type"] == "BDLSTM" or 
+      layer["type"] == "GRU"):
         model.add(Reshape((CONFIG["input_width"],1,)))
 
     # Dense Layer
@@ -395,7 +401,11 @@ for i, layer in enumerate(CONFIG["hidden_layers"]):
     # Conv1D Layer
     elif layer["type"] == "Conv1D":
         flatten_hidden_layer = True
-        model.add(Conv1D(layer["filters"], kernel_size=(layer["kernel_size"],), activation=layer["activation"]))
+        model.add(Conv1D(
+          layer["filters"], 
+          kernel_size=(layer["kernel_size"],), 
+          activation=layer["activation"]
+        ))
 
     # MaxPooling1D Layer
     elif layer["type"] == "MaxPooling1D":
@@ -473,7 +483,8 @@ plt.show()
 
 ```python
 # Initialize the learning rate that will be given to the optimizer
-learning_rate: Union[InverseTimeDecay, float] = inverse_time_decay_lr_schedule if CONFIG["learning_rate"] == "-1" else float(CONFIG["learning_rate"])
+learning_rate: Union[InverseTimeDecay, float] 
+  = inverse_time_decay_lr_schedule if CONFIG["learning_rate"] == "-1" else float(CONFIG["learning_rate"])
 ```
 
 ### Optimizer
@@ -494,8 +505,10 @@ elif CONFIG["optimizer"] == "sgd":
 ```python
 model.compile(
     optimizer=optimizer,
-    loss=MeanAbsoluteError() if CONFIG["loss_function"] == "mean_absolute_error" else MeanSquaredError(),
-    metrics=[ MeanSquaredErrorMetric() if CONFIG["loss_function"] == "mean_absolute_error" else MeanAbsoluteErrorMetric() ]
+    loss=MeanAbsoluteError() \
+      if CONFIG["loss_function"] == "mean_absolute_error" else MeanSquaredError(),
+    metrics=[ MeanSquaredErrorMetric() \
+      if CONFIG["loss_function"] == "mean_absolute_error" else MeanAbsoluteErrorMetric() ]
 )
 ```
 
@@ -554,7 +567,12 @@ Epoch 110/1000
 
 ```python
 # Display the learning curves
-def display_learning_curve(title: str, loss_id: ILossFunctionID, loss_curve: List[float], val_loss_curve: List[float]) -> None:
+def display_learning_curve(
+    title: str, 
+    loss_id: ILossFunctionID, 
+    loss_curve: List[float], 
+    val_loss_curve: List[float]
+  ) -> None:
     fig = plt.figure(figsize=SMALL_FIG_SIZE)
     plt.plot(loss_curve, color='firebrick', label=loss_id)
     plt.plot(val_loss_curve, color='red', linestyle='dotted', label=f"val_{loss_id}")
@@ -563,11 +581,22 @@ def display_learning_curve(title: str, loss_id: ILossFunctionID, loss_curve: Lis
     plt.show()
 
 # Display the loss history
-display_learning_curve("Loss", CONFIG["loss_function"], history_object.history["loss"], history_object.history["val_loss"])
+display_learning_curve(
+  "Loss", 
+  CONFIG["loss_function"], 
+  history_object.history["loss"], 
+  history_object.history["val_loss"]
+)
 
 # Display the loss metric history
-metric_id: ILossFunctionID = "mean_squared_error" if CONFIG["loss_function"] == "mean_absolute_error" else "mean_absolute_error"
-display_learning_curve("Loss Metric", metric_id, history_object.history[metric_id], history_object.history[f"val_{metric_id}"])
+metric_id: ILossFunctionID = "mean_squared_error" \
+  if CONFIG["loss_function"] == "mean_absolute_error" else "mean_absolute_error"
+display_learning_curve(
+  "Loss Metric", 
+  metric_id, 
+  history_object.history[metric_id], 
+  history_object.history[f"val_{metric_id}"]
+)
 ```
 
 ![image.png](./img/loss.png)
